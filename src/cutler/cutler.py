@@ -1,93 +1,82 @@
-import subprocess
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Union
+
+import ffmpeg
 
 @dataclass
-class VideoSource:
+class Source:
     # TODO: instead of loop, start, end, etc, add a list of filters to apply to this source
     filename: str
-    loop: bool  # use if source is image
-    start: Optional[float] = None  # seconds, None = beginning of file
-    end: Optional[float] = None    # seconds, None = end of file
-    duration: Optional[float] = None  # alternative to end; ignored if end is set
+    loop: bool      = False                         # use if source is image
+    filters: list() = field(default_factory = list) # TODO: separate audio filter chain?
+
+@dataclass
+class TrimFilter:
+    start: Optional[float] = None               # seconds, None = beginning of file
+    end: Optional[float] = None                 # seconds, None = end of file
+    duration: Optional[float] = None            # alternative to end; ignored if end is set
+    kind: Union['ts', 'pts', 'frame'] = 'ts'    # whether to interpret offsets as timestamp, timecode or frame number
+
+    def filterify(self, strm):
+        args = {
+            'start': self.start,
+            'end': self.end,
+        }
+        if self.end is None and self.duration is not None:
+            args['end'] = self.end + self.duration
+
+        if self.kind == 'ts':
+            suffix = ''
+        elif self.kind == 'pts':
+            suffix = '_pts'
+        elif self.kind == 'frame':
+            suffix = '_frame'
+        else:
+            raise RuntimeError(f'unknown kind {self.kind}')
+
+        args = {k + suffix: v for k, v in args.items() if v is not None}
+
+        return ffmpeg.trim(strm, **args)
+
+@dataclass
+class ScaleFilter:
+    w: Optional[int] = None
+    h: Optional[int] = None
+
+    def filterify(self, strm):
+        w = self.w
+        h = self.h
+        if w is None and h is None:
+            raise RuntimeError('please specify w and/or h')
+
+        if w is None:
+            w = -1
+        if h is None:
+            h = -1
+
+        return ffmpeg.filter(strm, 'scale', w, h)
+
+@dataclass
+class Job:
+    sources: list[Source]
+    out_filename: str
+    # TODO: add ffmpeg flags
 
 # TODO: make a FilterComplex class that lets you use keys for streams
 
-def concat_video_segments(
-    sources: list[VideoSource],
-    pre_flags: list[str] = (),
-    post_flags: list[str] = (),
-    output: str = "output.mp4",
-):
-    if not sources:
-        raise ValueError("At least one source is required")
+def render_job(job):
+    flt = filterify_sources(job.sources)
+    out = ffmpeg.output(flt, job.out_filename)
+    return out.get_args()
 
-    SEEK_BUFFER = 10.0  # seconds before start to fast-seek to
+def filterify_job(job):
+    return filterify_sources(job.sources)
 
-    inputs = []
-    for src in sources:
-        start = src.start  # may be None
+def filterify_sources(sources):
+    return ffmpeg.concat(*map(filterify_source, sources))
 
-        if src.loop:
-            inputs += ["-loop", "1"]
-        if start is not None and start > SEEK_BUFFER:
-            inputs += ["-ss", str(start - SEEK_BUFFER)]
-
-        inputs += ["-i", src.filename]
-
-    filter_parts = []
-    segment_labels = []
-
-    for i, src in enumerate(sources):
-        start = src.start
-        end = src.end
-
-        if end is None and src.duration is not None and start is not None:
-            end = start + src.duration
-        elif end is None and src.duration is not None:
-            end = src.duration
-
-        trim_args = []
-        atrim_args = []
-
-        if start is not None:
-            trim_args.append(f"start={start}")
-            atrim_args.append(f"start={start}")
-        if end is not None:
-            trim_args.append(f"end={end}")
-            atrim_args.append(f"end={end}")
-
-        trim_expr  = "trim="  + ":".join(trim_args)  if trim_args else "trim"
-        atrim_expr = "atrim=" + ":".join(atrim_args) if atrim_args else "atrim"
-
-        vl = f"v{i}"
-        al = f"a{i}"
-
-        filter_parts.append(
-            f"[{i}:v]{trim_expr},setpts=PTS-STARTPTS[{vl}]"
-        )
-        filter_parts.append(
-            f"[{i}:a]{atrim_expr},asetpts=PTS-STARTPTS[{al}]"
-        )
-        segment_labels.append((vl, al))
-
-    # concat filter
-    n = len(sources)
-    inputs = "".join(f"[{vl}][{al}]" for vl, al in segment_labels)
-    filter_parts.append(f"{inputs}concat=n={n}:v=1:a=1[vout][aout]")
-
-    filter_complex = ";\n  ".join(filter_parts)
-
-    cmd = [
-        "ffmpeg",
-        *pre_flags,
-        *inputs,
-        "-filter_complex", filter_complex,
-        "-map", "[vout]",
-        "-map", "[aout]",
-        *post_flags,
-        output,
-    ]
-
-    # TODO: generate ninja script
-    subprocess.run(cmd, check=True)
+def filterify_source(source):
+    strm = ffmpeg.input(source.filename)    # TODO: take loop into account
+    for fltr in source.filters:
+        strm = fltr.filterify(strm)
+    return strm
