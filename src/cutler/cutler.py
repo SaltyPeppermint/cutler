@@ -82,7 +82,9 @@ def filterify_job(job):
     return filterify_sources(job.sources)
 
 def filterify_sources(sources):
-    return ffmpeg.concat(*map(filterify_source, sources))
+    streams = map(filterify_source, sources)
+    streams = reversed(list(streams))     # wtf?
+    return ffmpeg.concat(*streams)
 
 def filterify_source(source):
     strm = ffmpeg.input(source.filename)    # TODO: take loop into account
