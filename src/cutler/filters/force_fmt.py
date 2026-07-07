@@ -6,6 +6,6 @@ import ffmpeg
 class ForceFmt:
     fmt: str
 
-    def filterify(self, blerg):
-        strm = ffmpeg.filter(blerg.strm, 'format', self.fmt)
-        return replace(blerg, strm=strm)
+    def filterify(self, source):
+        strm = ffmpeg.filter(source.strm, 'format', self.fmt)
+        return replace(source, strm=strm)

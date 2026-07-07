@@ -8,7 +8,7 @@ from cutler import data
 
 @click.command()
 def main():
-    intro = cl.Source(
+    intro = cl.Clip(
         filename='balkan-ruby-intro.mov',
         filters=[
             filters.ForceFmt(fmt='yuv420p'),
@@ -19,7 +19,7 @@ def main():
             duration=0.5
         ),
     )
-    talk = cl.Source(
+    talk = cl.Clip(
         filename='raws/day1_f01.mp4',
         filters=[
             filters.Trim(
@@ -28,8 +28,8 @@ def main():
             ),
         ],
     )
-    sources = [intro, talk]
-    job = cl.Job(sources=sources, out_filename='out/dedo.mp4')
+    clips = [intro, talk]
+    job = cl.Job(clips=clips, out_filename='out/dedo.mp4')
     args = cl.render_job(job)
 
     print(shlex.join(['ffmpeg'] + args))

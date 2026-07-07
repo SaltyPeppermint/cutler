@@ -8,7 +8,7 @@ class Scale:
     w: Optional[int] = None
     h: Optional[int] = None
 
-    def filterify(self, blerg):
+    def filterify(self, source):
         w = self.w
         h = self.h
         if w is None and h is None:
@@ -19,5 +19,5 @@ class Scale:
         if h is None:
             h = -1
 
-        strm = ffmpeg.filter(blerg.strm, 'scale', w, h)
-        return replace(blerg, strm=strm)
+        strm = ffmpeg.filter(source.strm, 'scale', w, h)
+        return replace(source, strm=strm)

@@ -10,7 +10,7 @@ class Trim:
     duration: Optional[float] = None            # alternative to end; ignored if end is set
     kind: Union['ts', 'pts', 'frame'] = 'ts'    # whether to interpret offsets as timestamp, timecode or frame number
 
-    def filterify(self, blerg):
+    def filterify(self, source):
         args = {
             'start': self.start,
             'end': self.end,
@@ -35,11 +35,11 @@ class Trim:
         if self.duration is not None:
             actual_duration = self.duration
         elif self.end is None and self.start is None:
-            actual_duration = blerg.actual_duration
+            actual_duration = source.actual_duration
         elif self.end is None:
             if self.kind == 'pts':
                 raise RuntimeError("don't know how to compute duration of PTS-based trim with no end, FIXME")
-            actual_duration = blerg.actual_duration - self.start
+            actual_duration = source.actual_duration - self.start
         elif self.start is None:
             if self.kind == 'pts':
                 raise RuntimeError("don't know how to compute duration of PTS-based trim with no start, FIXME")
@@ -47,7 +47,7 @@ class Trim:
         else:
             actual_duration = self.end - self.start
 
-        return replace(blerg,
-            strm=ffmpeg.trim(blerg.strm, **args),
+        return replace(source,
+            strm=ffmpeg.trim(source.strm, **args),
             actual_duration=actual_duration,
         )

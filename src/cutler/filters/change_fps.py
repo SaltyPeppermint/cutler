@@ -6,6 +6,6 @@ import ffmpeg
 class ChangeFPS:
     fps: float
 
-    def filterify(self, blerg):
-        strm = ffmpeg.filter(blerg.strm, 'fps', self.fps)
-        return replace(blerg, strm=strm)
+    def filterify(self, source):
+        strm = ffmpeg.filter(source.strm, 'fps', self.fps)
+        return replace(source, strm=strm)
