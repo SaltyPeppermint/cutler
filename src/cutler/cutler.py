@@ -36,7 +36,15 @@ class TrimFilter:
 
         args = {k + suffix: v for k, v in args.items() if v is not None}
 
-        return ffmpeg.trim(strm, **args)
+        strm = ffmpeg.trim(strm, **args)
+        return ffmpeg.filter(strm, 'setpts', 'PTS-STARTPTS')
+
+@dataclass
+class ForceFmtFilter:
+    fmt: str
+
+    def filterify(self, strm):
+        return ffmpeg.filter(strm, 'format', self.fmt)
 
 @dataclass
 class ScaleFilter:
@@ -67,6 +75,7 @@ class Job:
 def render_job(job):
     flt = filterify_sources(job.sources)
     out = ffmpeg.output(flt, job.out_filename)
+    out = ffmpeg.overwrite_output(out)
     return out.get_args()
 
 def filterify_job(job):

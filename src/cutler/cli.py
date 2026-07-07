@@ -9,6 +9,7 @@ def main():
     intro = cl.Source(
         filename='balkan-ruby-intro.mov',
         filters=[
+            cl.ForceFmtFilter(fmt='yuv420p'),
             cl.ScaleFilter(w=1920, h=1080),
         ],
     )
