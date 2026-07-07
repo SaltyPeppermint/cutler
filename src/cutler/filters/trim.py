@@ -29,9 +29,6 @@ class Trim:
 
         args = {k + suffix: v for k, v in args.items() if v is not None}
 
-        strm = ffmpeg.trim(blerg.strm, **args)
-        strm = ffmpeg.filter(blerg.strm, 'setpts', 'PTS-STARTPTS')
-
         if self.kind == 'frame':
             raise RuntimeError("don't know how to compute duration of frame-based trim, FIXME")
 
@@ -51,6 +48,6 @@ class Trim:
             actual_duration = self.end - self.start
 
         return replace(blerg,
-            strm=strm,
+            strm=ffmpeg.trim(blerg.strm, **args),
             actual_duration=actual_duration,
         )

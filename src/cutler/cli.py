@@ -3,6 +3,7 @@ import shlex
 
 from cutler import cutler as cl
 from cutler import filters
+from cutler import data
 
 
 @click.command()
@@ -11,8 +12,12 @@ def main():
         filename='balkan-ruby-intro.mov',
         filters=[
             filters.ForceFmt(fmt='yuv420p'),
+            filters.ChangeFPS(fps=30),
             filters.Scale(w=1920, h=1080),
         ],
+        transition=data.Transition(
+            duration=0.5
+        ),
     )
     talk = cl.Source(
         filename='raws/day1_f01.mp4',
@@ -23,8 +28,8 @@ def main():
             ),
         ],
     )
-    sources = [talk, intro]
-    job = cl.Job(sources=sources, out_filename='dedo.mp4')
+    sources = [intro, talk]
+    job = cl.Job(sources=sources, out_filename='out/dedo.mp4')
     args = cl.render_job(job)
 
     print(shlex.join(['ffmpeg'] + args))
