@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import ffmpeg
 
@@ -6,5 +6,6 @@ import ffmpeg
 class ForceFmt:
     fmt: str
 
-    def filterify(self, strm):
-        return ffmpeg.filter(strm, 'format', self.fmt)
+    def filterify(self, blerg):
+        strm = ffmpeg.filter(blerg.strm, 'format', self.fmt)
+        return replace(blerg, strm=strm)

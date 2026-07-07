@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 import ffmpeg
@@ -8,7 +8,7 @@ class Scale:
     w: Optional[int] = None
     h: Optional[int] = None
 
-    def filterify(self, strm):
+    def filterify(self, blerg):
         w = self.w
         h = self.h
         if w is None and h is None:
@@ -19,4 +19,5 @@ class Scale:
         if h is None:
             h = -1
 
-        return ffmpeg.filter(strm, 'scale', w, h)
+        strm = ffmpeg.filter(blerg.strm, 'scale', w, h)
+        return replace(blerg, strm=strm)
