@@ -9,7 +9,7 @@ from cutler.parse_vars import vars_from_click_arg, vars_from_csv, vars_from_json
 @click.argument('recipe_file', type=click.File())
 @click.option(
     '-v', '--var', 'var_args', multiple=True, metavar='NAME=JSON',
-    help='Set a recipe variable; value is parsed as JSON. Repeatable.',
+    help='Set a recipe variable. Valid json values are parsed as json, invalid ones are used as strings. Can be passed multiple times.',
 )
 @click.option(
     '--vars-from-csv', 'vars_csv_file', type=click.File(), default=None,
