@@ -5,9 +5,9 @@ from cutler.load_recipe import load_recipe
 
 
 @click.command()
-@click.argument('recipe_files', type=click.Path(exists=True), nargs=-1)
-def main(recipe_files):
-    recipe = load_recipe(recipe_files)
+@click.argument('recipe_file', type=click.Path(exists=True))
+def main(recipe_file):
+    recipe = load_recipe(recipe_file)
     exec_recipe(recipe)
 
 
