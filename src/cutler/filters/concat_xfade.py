@@ -2,6 +2,9 @@ from dataclasses import dataclass, replace
 
 import ffmpeg
 
+from cutler.data import Source
+from cutler.filters.reset_timebase import ResetTimebase
+
 @dataclass
 class Transition:
     effect: str = 'fade'
@@ -13,7 +16,7 @@ class ConcatXFade:
 
     def filterify(self, *srcs):
         # xfade requires all clips to start from 0 timebase
-        srcs = map(srcs, ResetTimebase().filterify)
+        srcs = list(map(ResetTimebase().filterify, srcs))
 
         if len(self.transitions) + 1 != len(srcs):
             raise RuntimeErrror(f'concat_xfade given {len(srcs)} sources but expects {len(self.transitions) + 1} sources (because there are {len(self.transitions)} transitions defined')
@@ -33,5 +36,5 @@ class ConcatXFade:
                 duration=transition.duration,
                 offset=l.actual_duration - transition.duration,
             ),
-            actual_duration=l.actual_duration + r.actual_duration - l.transition.duration,
+            actual_duration=l.actual_duration + r.actual_duration - transition.duration,
         )

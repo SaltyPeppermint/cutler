@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 import ffmpeg
 
+from cutler.data import Source
+
 @dataclass
 class ReadClip:
     filename: str
