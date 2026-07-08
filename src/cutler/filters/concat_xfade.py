@@ -14,6 +14,10 @@ class Transition:
 class ConcatXFade:
     transitions: list[Transition]
 
+    @staticmethod
+    def ref():
+        return 'concat_xfade'
+
     def filterify(self, *srcs):
         # xfade requires all clips to start from 0 timebase
         srcs = list(map(ResetTimebase().filterify, srcs))

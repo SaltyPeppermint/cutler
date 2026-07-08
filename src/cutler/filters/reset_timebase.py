@@ -4,6 +4,10 @@ import ffmpeg
 
 @dataclass
 class ResetTimebase:
+    @staticmethod
+    def ref():
+        return 'reset_timebase'
+
     def filterify(self, source):
         strm = source.strm
 

@@ -9,6 +9,10 @@ class ReadClip:
     filename: str
     looped: bool = False
 
+    @staticmethod
+    def ref():
+        return 'read_clip'
+
     def filterify(self):
         strm = ffmpeg.input(self.filename)
         if self.looped:

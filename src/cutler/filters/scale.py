@@ -8,6 +8,10 @@ class Scale:
     w: Optional[int] = None
     h: Optional[int] = None
 
+    @staticmethod
+    def ref():
+        return 'scale'
+
     def filterify(self, source):
         w = self.w
         h = self.h

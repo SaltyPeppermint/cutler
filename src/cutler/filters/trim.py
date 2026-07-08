@@ -10,6 +10,10 @@ class Trim:
     duration: Optional[float] = None            # alternative to end; ignored if end is set
     kind: Union['ts', 'pts', 'frame'] = 'ts'    # whether to interpret offsets as timestamp, timecode or frame number
 
+    @staticmethod
+    def ref():
+        return 'trim'
+
     def filterify(self, source):
         args = {
             'start': self.start,
