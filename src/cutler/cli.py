@@ -13,7 +13,7 @@ def main():
             filters=[
                 filters.ReadClip(filename='balkan-ruby-intro.mov'),
                 filters.ForceFmt(fmt='yuv420p'),
-                filters.ChangeFPS(fps=30),
+                filters.RawFFmpegFilter(name='fps', args=[30]),
                 filters.Scale(w=1920, h=1080),
             ],
         ),
