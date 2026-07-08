@@ -2,26 +2,18 @@ import ffmpeg
 from dataclasses import dataclass, field
 
 @dataclass
-class Transition:
-    effect: str = 'fade'
-    duration: float = 0
-
-@dataclass
-class Clip:
-    # TODO: instead of loop, start, end, etc, add a list of filters to apply to this clip
-    filename: str
-    loop: bool      = False                         # use if clip is image
-    filters: list() = field(default_factory = list) # TODO: separate audio filter chain?
-    transition: Transition = field(default_factory = Transition)
+class Chain:
+    inputs: list[str] = field(default_factory = list)   # chain inputs are names of other chains
+    filters: list() = field(default_factory = list)
 
 @dataclass
 class Source:   # TODO: naming hard
     strm: ffmpeg.Stream
-    transition: Transition
     actual_duration: float
 
 @dataclass
 class Job:
-    clips: list[Clip]
+    chains: dict[str, Chain]
+    out: str    # name of the chain that produces the job output
     out_filename: str
     # TODO: add ffmpeg flags

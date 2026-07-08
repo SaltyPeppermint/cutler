@@ -2,49 +2,28 @@ import ffmpeg
 import sys
 from functools import reduce
 
-from cutler.data import Clip, Source, Job
+from cutler.data import Chain, Source, Job
+from cutler.lazy import Lazy
 from cutler.filters import ResetTimebase
 
-def render_job(job):
-    sources = map(clip_to_src, job.clips)
-    flt = reduce(concat_sources, sources)
+def render_job(job: Job):
+    chain_results = {
+        chain_name: Lazy(lambda: exec_chain(chain_name, chain, chain_results))
+        for chain_name, chain in job.chains.items()
+    }
+
+    out_src = chain_results[job.out].get()
+
     out = ffmpeg.output(flt.strm, job.out_filename)
     out = ffmpeg.overwrite_output(out)
     return out.get_args()
 
-def concat_sources(l, r):
-    strm = ffmpeg.filter(
-        [l.strm, r.strm],
-        'xfade',
-        transition=l.transition.effect,
-        duration=l.transition.duration,
-        offset=l.actual_duration - l.transition.duration,
-    )
-    return Source(
-        strm=strm,
-        transition=r.transition,
-        actual_duration=l.actual_duration + r.actual_duration - l.transition.duration,
-    )
+def exec_chain(name: str, chain: Chain, chain_results: dict[str, Lazy[Source]]):
+    print(f'chain {name} wants inputs {','.join(chain.inputs)}')
+    input_srcs = [chain_results[inp].get() for inp in chain.inputs]
 
+    src = chain.filters[0].filterify(*input_srcs)
+    for fltr in chain.filters[1:]:
+        src = fltr.filterify(src)
 
-def clip_to_src(clip):
-    strm = ffmpeg.input(clip.filename)    # TODO: take loop into account
-
-    try:
-        probe = ffmpeg.probe(clip.filename)
-    except ffmpeg.Error as e:
-        sys.stderr.write(e.stderr.decode('utf-8'))
-        raise
-
-    source = Source(
-        strm=strm,
-        transition=clip.transition,
-        actual_duration=float(probe['format']['duration']),
-    )
-
-    for fltr in clip.filters + [ResetTimebase()]:
-        source = fltr.filterify(source)
-
-
-    return source
-
+    return src
