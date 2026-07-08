@@ -1,10 +1,16 @@
 import ffmpeg
+import shlex
 import sys
 from functools import reduce
 
-from cutler.data import Chain, Source, Job
+from cutler.data import Chain, Source, Job, Recipe
 from cutler.lazy import Lazy
 from cutler.filters import ResetTimebase
+
+def exec_recipe(recipe: Recipe):
+    for job in recipe.jobs:
+        args = render_job(job)
+        print(shlex.join(['ffmpeg'] + args))    # will actually execute later
 
 def render_job(job: Job):
     chain_results = {

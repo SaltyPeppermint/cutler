@@ -22,3 +22,7 @@ class Job:
     out: str    # name of the chain that produces the job output
     out_filename: str
     # TODO: add ffmpeg flags
+
+@dataclass
+class Recipe:
+    jobs: list[Job]

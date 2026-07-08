@@ -18,6 +18,12 @@ class ConcatXFade:
     def ref():
         return 'concat_xfade'
 
+    @classmethod
+    def from_dict(cls, d):
+        return cls(
+            transitions=[Transition(**t) for t in d['transitions']],
+        )
+
     def filterify(self, *srcs):
         # xfade requires all clips to start from 0 timebase
         srcs = list(map(ResetTimebase().filterify, srcs))

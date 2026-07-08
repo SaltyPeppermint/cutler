@@ -1,47 +1,15 @@
 import click
-import shlex
 
-from cutler import cutler as cl
-from cutler import filters
-from cutler import data
+from cutler.cutler import exec_recipe
+from cutler.load_recipe import load_recipe
 
 
 @click.command()
-def main():
-    chains = {
-        'intro': cl.Chain(
-            filters=[
-                filters.ReadClip(filename='balkan-ruby-intro.mov'),
-                filters.ForceFmt(fmt='yuv420p'),
-                filters.RawFFmpegFilter(name='fps', args=[30]),
-                filters.Scale(w=1920, h=1080),
-            ],
-        ),
-        'talk': cl.Chain(
-            filters=[
-                filters.ReadClip(filename='raws/day1_f01.mp4'),
-                filters.Trim(
-                    start=23 * 60 + 23,
-                    end=29 * 60 + 53,
-                ),
-            ],
-        ),
-        'result': cl.Chain(
-            inputs=['intro', 'talk'],
-            filters=[
-                filters.ConcatXFade(transitions=[
-                    filters.Transition(
-                        effect='vertclose',
-                        duration=0.5,
-                    )
-                ]),
-            ],
-        )
-    }
-    job = cl.Job(chains=chains, out='result', out_filename='out/dedo.mp4')
-    args = cl.render_job(job)
+@click.argument('recipe_files', type=click.Path(exists=True), nargs=-1)
+def main(recipe_files):
+    recipe = load_recipe(recipe_files)
+    exec_recipe(recipe)
 
-    print(shlex.join(['ffmpeg'] + args))
 
 if __name__ == "__main__":
     main()
