@@ -10,20 +10,17 @@ def _coerce(value: str):
     except (json.JSONDecodeError, TypeError):
         return value
 
-def vars_from_csv(f, global_vars: dict[str, any]) -> list[dict[str, any]]:
-    var_assignments = []
-    for row in csv.DictReader(f):
-        var_assignments.append({**global_vars, **{k: _coerce(v) for k, v in row.items()}})
-    return var_assignments
+def records_from_csv(f) -> list[dict[str, any]]:
+    return [{k: _coerce(v) for k, v in row.items()} for row in csv.DictReader(f)]
 
-def vars_from_jsonl(f, global_vars: dict[str, any]) -> list[dict[str, any]]:
-    var_assignments = []
+def records_from_jsonl(f) -> list[dict[str, any]]:
+    records = []
     for line in f:
         line = line.strip()
         if not line:
             continue
-        var_assignments.append({**global_vars, **json.loads(line)})
-    return var_assignments
+        records.append(json.loads(line))
+    return records
 
 def vars_from_click_arg(vars_) -> dict[str, any]:
     var_assignments = {}

@@ -4,35 +4,32 @@ import click
 
 from cutler.cutler import exec_recipe
 from cutler.load_recipe import load_recipe
-from cutler.parse_vars import vars_from_click_arg, vars_from_csv, vars_from_jsonl
+from cutler.parse_vars import vars_from_click_arg, records_from_csv, records_from_jsonl
 
 
 @click.command()
 @click.argument('recipe_path', type=click.Path(exists=True))
 @click.option(
     '-v', '--var', 'var_args', multiple=True, metavar='NAME=JSON',
-    help='Set a recipe variable. Valid json values are parsed as json, invalid ones are used as strings. Can be passed multiple times.',
+    help='Set a recipe variable. The recipe will be given a dict with all variables.'
 )
 @click.option(
-    '--vars-from-csv', 'vars_csv_file', type=click.File(), default=None,
-    help='Instantiate the recipe once per CSV row. CSV fields are used as variables.',
+    '--records-from-csv', 'records_csv_file', type=click.File(), default=None,
+    help='The recipe will be passed a dict that contains a `records` key, which will contain all the rows from the CSV. Values that are valid JSON are parsed as JSON. Otherwise, string is assumed.'
 )
 @click.option(
-    '--vars-from-jsonl', 'vars_jsonl_file', type=click.File(), default=None,
-    help='Instantiate the recipe once per JSONL line. Each JSON object provides variables.',
+    '--records-from-jsonl', 'records_jsonl_file', type=click.File(), default=None,
+    help='The recipe will be passed a dict that contains a `records` key, which will contain all the rows from the JSONL data.'
 )
-def main(recipe_path, var_args, vars_csv_file, vars_jsonl_file):
-    global_vars = vars_from_click_arg(var_args)
+def main(recipe_path, var_args, records_csv_file, records_jsonl_file):
+    data = vars_from_click_arg(var_args)
 
-    var_assignments = []
-    if vars_csv_file is not None:
-        var_assignments += vars_from_csv(vars_csv_file, global_vars)
-    if vars_jsonl_file is not None:
-        var_assignments += vars_from_jsonl(vars_jsonl_file, global_vars)
-    if not var_assignments:
-        var_assignments = [global_vars] if global_vars else None
+    if records_csv_file is not None:
+        data['records'] = records_from_csv(records_csv_file)
+    if records_jsonl_file is not None:
+        data['records'] = records_from_jsonl(records_jsonl_file)
 
-    recipe = load_recipe(recipe_path, var_assignments)
+    recipe = load_recipe(recipe_path, data or None)
     asyncio.run(exec_recipe(recipe))
 
 

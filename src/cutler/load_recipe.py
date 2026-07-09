@@ -16,14 +16,11 @@ def _nickel_str(s: str) -> str:
 def _nickel_obj(va: dict) -> str:
     return f"(std.deserialize 'Json {_nickel_str(json.dumps(va))})"
 
-def load_recipe(recipe_path, var_assignments: Optional[Sequence[dict]] = None) -> cl.Recipe:
+def load_recipe(recipe_path, data) -> cl.Recipe:
     recipe_path = os.path.abspath(recipe_path)
-    if var_assignments is not None:
+    if data is not None:
         expr = f'''
-            let
-                recipe_builder = (import {_nickel_str(recipe_path)})
-            in
-                {'&'.join([f'(recipe_builder {_nickel_obj(va)})' for va in var_assignments])}
+            (import {_nickel_str(recipe_path)}) {_nickel_obj(data)}
         '''
     else:
         expr = f'''

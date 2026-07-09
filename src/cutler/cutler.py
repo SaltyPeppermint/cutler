@@ -11,8 +11,7 @@ from cutler.filters import ResetTimebase
 from cutler.cmd_exec import exec_cmd
 
 async def exec_recipe(recipe: Recipe):
-    for job in recipe.jobs:
-        await render_job(job)
+    await asyncio.gather(*(render_job(job) for job in recipe.jobs))
 
 async def render_job(job: Job):
     chain_results = {
