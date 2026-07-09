@@ -1,5 +1,8 @@
 from dataclasses import dataclass
+from typing import Optional
+import subprocess
 import sys
+import os
 
 import ffmpeg
 
@@ -7,27 +10,58 @@ from cutler.data import Source
 
 @dataclass
 class ReadClip:
-    filename: str
+    filename: str = None
+    gen_cmd: list[str] = None
+    gen_overwrite: bool = True
     looped: bool = False
+    fmt: Optional[str] = None
+    seek_start: Optional[float] = None
+    seek_end: Optional[float] = None
+    duration: Optional[float] = None
 
     @staticmethod
     def ref():
         return 'read_clip'
 
     def filterify(self):
-        strm = ffmpeg.input(self.filename)
+        if self.gen_cmd is not None:
+            if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
+                result = subprocess.run(self.gen_cmd, capture_output=True, text=True, check=True)
+
+                if self.filename is None:
+                    self.filename = result.stdout.strip()
+        elif self.filename is None:
+            raise RuntimeError('either filename or gen_cmd must be provided')
+
+        duration = self.duration
+
+        if self.seek_end is not None:
+            if duration is not None:
+                raise RuntimeError('cannot specify both seek_start and duration')
+            duration = self.seek_end - (self.seek_start or 0)
+
+        kwargs = {}
+        if self.fmt is not None:
+            kwargs['f'] = self.fmt
+        if duration is not None:
+            kwargs['t'] = duration
+        if self.seek_start is not None:
+            kwargs['ss'] = self.seek_start
+
+        strm = ffmpeg.input(self.filename, **kwargs)
         if self.looped:
             raise RuntimeError('not implemented (FIXME: pass loop arg to ffmpeg for this input)')
 
-        try:
-            # TODO: make this probe be lazy
-            probe = ffmpeg.probe(self.filename)
-        except ffmpeg.Error as e:
-            sys.stderr.write(e.stderr.decode('utf-8'))
-            raise
+        if duration is None:
+            try:
+                # TODO: make this probe be lazy
+                probe = ffmpeg.probe(self.filename)
+            except ffmpeg.Error as e:
+                sys.stderr.write(e.stderr.decode('utf-8'))
+                raise
+            duration = float(probe['format']['duration'])
 
         return Source(
             strm=strm,
-            actual_duration=float(probe['format']['duration']),
+            actual_duration=duration,
         )
-
