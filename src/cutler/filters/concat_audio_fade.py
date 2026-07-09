@@ -28,12 +28,20 @@ class ConcatAudioFade:
         return l
 
     def _concat(self, l, r, duration):
-        return Source(
-            strm=ffmpeg.filter(
+        if duration < 0.00001:
+            strm = ffmpeg.filter(
+                [l.strm, r.strm],
+                'concat',
+            )
+        else:
+            strm = ffmpeg.filter(
                 [l.strm, r.strm],
                 'acrossfade',
                 d=duration,
-            ),
+            )
+
+        return Source(
+            strm=strm,
             actual_duration=l.actual_duration + r.actual_duration - duration,
             kind='audio',
         )
