@@ -14,21 +14,21 @@ class ConcatAudioFade:
     def ref():
         return 'concat_audio_fade'
 
-    def filterify(self, *srcs):
+    async def filterify(self, *srcs):
         # TODO: this repeats code from `concat_xfade`, find a way to merge it
         # crossfade requires all clips to start from 0 timebase
-        srcs = list(map(ResetTimebase().filterify, srcs))
+        srcs = [await ResetTimebase().filterify(src) for src in srcs]
 
         if len(self.transition_durations) + 1 != len(srcs):
             raise RuntimeErrror(f'concat_audio_fade given {len(srcs)} sources but expects {len(self.transition_durations) + 1} sources (because there are {len(self.transition_durations)} transitions defined')
 
         l = srcs[0]
         for duration, r in zip(self.transition_durations, srcs[1:]):
-            l = self._concat(l, r, duration)
+            l = await self._concat(l, r, duration)
 
         return l
 
-    def _concat(self, l, r, duration):
+    async def _concat(self, l, r, duration):
         if duration < 0.00001:
             strm = ffmpeg.filter(
                 [l.strm, r.strm],
@@ -42,11 +42,12 @@ class ConcatAudioFade:
                 d=duration,
             )
 
+        async def total_duration():
+            return await l.actual_duration.get() + await r.actual_duration.get() - duration
+
         return Source(
             strm=strm,
-            actual_duration=Lazy(lambda:
-                l.actual_duration.get() + r.actual_duration.get() - duration,
-            ),
+            actual_duration=Lazy(total_duration),
             kind='audio',
         )
 

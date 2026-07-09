@@ -1,3 +1,4 @@
+import inspect
 from typing import Callable
 
 class Lazy[T]:
@@ -6,12 +7,14 @@ class Lazy[T]:
         self._computed = False
         self._val = None
 
-    def get(self) -> T:
+    async def get(self) -> T:
         if self._computed:
             return self._val
 
-        self._val = self._f()
-        return self._val
+        val = self._f()
+        if inspect.isawaitable(val):
+            val = await val
 
-    def map[Q](self, g: Callable[[T], Q]) -> "Lazy[Q]":
-        return Lazy(lambda: g(self.get()))
+        self._val = val
+        self._computed = True
+        return self._val

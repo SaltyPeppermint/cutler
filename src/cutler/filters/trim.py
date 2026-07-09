@@ -15,7 +15,7 @@ class Trim:
     def ref():
         return 'trim'
 
-    def filterify(self, source):
+    async def filterify(self, source):
         args = {
             'start': self.start,
             'end': self.end,
@@ -40,11 +40,11 @@ class Trim:
         if self.duration is not None:
             actual_duration = self.duration
         elif self.end is None and self.start is None:
-            actual_duration = source.actual_duration.get()
+            actual_duration = await source.actual_duration.get()
         elif self.end is None:
             if self.kind == 'pts':
                 raise RuntimeError("don't know how to compute duration of PTS-based trim with no end, FIXME")
-            actual_duration = source.actual_duration.get() - self.start
+            actual_duration = await source.actual_duration.get() - self.start
         elif self.start is None:
             if self.kind == 'pts':
                 raise RuntimeError("don't know how to compute duration of PTS-based trim with no start, FIXME")

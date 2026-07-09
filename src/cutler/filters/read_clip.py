@@ -26,10 +26,10 @@ class ReadClip:
     def ref():
         return 'read_clip'
 
-    def filterify(self):
+    async def filterify(self):
         if self.gen_cmd is not None:
             if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
-                result = exec_cmd(f'generate input {self.filename}', self.gen_cmd)
+                result = await exec_cmd(f'generate input {self.filename}', self.gen_cmd)
 
                 if self.filename is None:
                     self.filename = result.strip()
@@ -57,7 +57,9 @@ class ReadClip:
 
         probe = Lazy(lambda: self._ffprobe())
         if duration is None:
-            duration_lazy = Lazy(lambda: float(probe.get()['format']['duration']))
+            async def probe_duration():
+                return float((await probe.get())['format']['duration'])
+            duration_lazy = Lazy(probe_duration)
         else:
             duration_lazy = Lazy(lambda: duration)
 
@@ -68,7 +70,7 @@ class ReadClip:
             kind='av',
         )
 
-    def _ffprobe(self):
+    async def _ffprobe(self):
         args = ['ffprobe', '-show_format', '-show_streams', '-of', 'json', self.filename]
-        result = exec_cmd(f'ffprobe {os.path.basename(self.filename)}', args)
+        result = await exec_cmd(f'ffprobe {os.path.basename(self.filename)}', args)
         return json.loads(result)

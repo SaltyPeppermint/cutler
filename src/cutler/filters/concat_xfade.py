@@ -25,20 +25,20 @@ class ConcatXFade:
             transitions=[Transition(**t) for t in d['transitions']],
         )
 
-    def filterify(self, *srcs):
+    async def filterify(self, *srcs):
         # xfade requires all clips to start from 0 timebase
-        srcs = list(map(ResetTimebase().filterify, srcs))
+        srcs = [await ResetTimebase().filterify(src) for src in srcs]
 
         if len(self.transitions) + 1 != len(srcs):
             raise RuntimeErrror(f'concat_xfade given {len(srcs)} sources but expects {len(self.transitions) + 1} sources (because there are {len(self.transitions)} transitions defined')
 
         l = srcs[0]
         for transition, r in zip(self.transitions, srcs[1:]):
-            l = self._concat(l, r, transition)
+            l = await self._concat(l, r, transition)
 
         return l
 
-    def _concat(self, l, r, transition):
+    async def _concat(self, l, r, transition):
         if transition.duration < 0.00001:
             strm = ffmpeg.filter(
                 [l.strm, r.strm],
@@ -50,13 +50,14 @@ class ConcatXFade:
                 'xfade',
                 transition=transition.effect,
                 duration=transition.duration,
-                offset=l.actual_duration.get() - transition.duration,
+                offset=await l.actual_duration.get() - transition.duration,
             )
+
+        async def total_duration():
+            return await l.actual_duration.get() + await r.actual_duration.get() - transition.duration
 
         return Source(
             strm=strm,
-            actual_duration=Lazy(lambda:
-                l.actual_duration.get() + r.actual_duration.get() - transition.duration,
-            ),
+            actual_duration=Lazy(total_duration),
             kind='video',
         )

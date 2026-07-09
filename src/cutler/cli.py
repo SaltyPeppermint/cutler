@@ -1,3 +1,5 @@
+import asyncio
+
 import click
 
 from cutler.cutler import exec_recipe
@@ -31,7 +33,7 @@ def main(recipe_path, var_args, vars_csv_file, vars_jsonl_file):
         var_assignments = [global_vars] if global_vars else None
 
     recipe = load_recipe(recipe_path, var_assignments)
-    exec_recipe(recipe)
+    asyncio.run(exec_recipe(recipe))
 
 
 if __name__ == "__main__":

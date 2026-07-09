@@ -12,7 +12,7 @@ class Split:
     def ref():
         return 'split'
 
-    def filterify(self, source):
+    async def filterify(self, source):
         n = len(self.branch_names)
         strm = source.strm
 
