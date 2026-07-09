@@ -26,13 +26,10 @@ def vars_from_jsonl(f, global_vars: dict[str, any]) -> list[dict[str, any]]:
     return var_assignments
 
 def vars_from_click_arg(vars_) -> dict[str, any]:
-    global_vars = {}
+    var_assignments = {}
     for entry in vars_:
         name, sep, raw = entry.partition('=')
         if not sep:
             raise click.BadParameter(f'expected NAME=JSON, got {entry!r}', param_hint='--var')
-        try:
-            global_vars[name] = json.loads(raw)
-        except json.JSONDecodeError as e:
-            raise click.BadParameter(f'invalid JSON for {name!r}: {e}', param_hint='--var')
-    return global_vars
+        var_assignments[name] = _coerce(raw)
+    return var_assignments
