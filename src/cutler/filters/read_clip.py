@@ -64,4 +64,5 @@ class ReadClip:
         return Source(
             strm=strm,
             actual_duration=duration,
+            kind='av',
         )

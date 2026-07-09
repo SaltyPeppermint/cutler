@@ -21,9 +21,9 @@ def render_job(job: Job):
         for chain_name, chain in job.chains.items()
     }
 
-    out_src = chain_results[job.out].get()
+    out_strms = [chain_results[out].get().strm for out in job.outs]
 
-    out = ffmpeg.output(out_src.strm, job.out_filename)
+    out = ffmpeg.output(*out_strms, job.out_filename)
     out = ffmpeg.overwrite_output(out)
     return out.get_args()
 

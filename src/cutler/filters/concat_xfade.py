@@ -47,4 +47,5 @@ class ConcatXFade:
                 offset=l.actual_duration - transition.duration,
             ),
             actual_duration=l.actual_duration + r.actual_duration - transition.duration,
+            kind='video',
         )

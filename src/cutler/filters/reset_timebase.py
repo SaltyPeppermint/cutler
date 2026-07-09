@@ -11,7 +11,13 @@ class ResetTimebase:
     def filterify(self, source):
         strm = source.strm
 
-        strm = ffmpeg.filter(strm, 'settb', 'AVTB')
-        strm = ffmpeg.filter(strm, 'setpts', 'PTS-STARTPTS')
+        if source.kind == 'video':
+            strm = ffmpeg.filter(strm, 'settb', 'AVTB')
+            strm = ffmpeg.filter(strm, 'setpts', 'PTS-STARTPTS')
+        elif source.kind == 'audio':
+            strm = ffmpeg.filter(strm, 'asettb', 'AVTB')
+            strm = ffmpeg.filter(strm, 'asetpts', 'PTS-STARTPTS')
+        else:
+            raise RuntimeError('unclear if this is an audio or video stream: use the get_audio or get_video filter before this one')
 
         return replace(source, strm=strm)

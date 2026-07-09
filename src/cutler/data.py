@@ -1,11 +1,12 @@
 import ffmpeg
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable
+from typing import Protocol, Union, runtime_checkable
 
 @dataclass
 class Source:   # TODO: naming hard
     strm: ffmpeg.Stream
     actual_duration: float
+    kind: Union['audio', 'video', 'av']
 
 @runtime_checkable
 class Filter(Protocol):
@@ -19,7 +20,7 @@ class Chain:
 @dataclass
 class Job:
     chains: dict[str, Chain]
-    out: str    # name of the chain that produces the job output
+    outs: list[str]    # names of chains whose outputs will be included in output video
     out_filename: str
     # TODO: add ffmpeg flags
 
