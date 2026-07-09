@@ -27,8 +27,16 @@ def render_job(job: Job):
     out = ffmpeg.overwrite_output(out)
     return out.get_args()
 
+def get_chain_result(chain_results: dict[str, Lazy[Source]], ref):
+    if '.' in ref:
+        name, branch = ref.split('.', 2)
+    else:
+        name, branch = ref, ''
+
+    return chain_results[name].get().branch(branch)
+
 def exec_chain(chain: Chain, chain_results: dict[str, Lazy[Source]]):
-    input_srcs = [chain_results[inp].get() for inp in chain.inputs]
+    input_srcs = [get_chain_result(chain_results, inp) for inp in chain.inputs]
 
     src = chain.filters[0].filterify(*input_srcs)
     for fltr in chain.filters[1:]:

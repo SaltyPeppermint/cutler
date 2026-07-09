@@ -1,5 +1,5 @@
 import ffmpeg
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Protocol, Union, runtime_checkable
 
 @dataclass
@@ -7,6 +7,13 @@ class Source:   # TODO: naming hard
     strm: ffmpeg.Stream
     actual_duration: float
     kind: Union['audio', 'video', 'av']
+    branches: dict[str, ffmpeg.Stream] = field(default_factory = dict)
+
+    def branch(self, name=None):
+        if not name:
+            return self
+        else:
+            return replace(self, strm=self.branches[name], branches={})
 
 @runtime_checkable
 class Filter(Protocol):
