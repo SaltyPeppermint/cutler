@@ -1,3 +1,4 @@
+import asyncio
 import ffmpeg
 import shlex
 import sys
@@ -41,7 +42,7 @@ async def exec_chain(chain: Chain, chain_results: dict[str, Lazy[Source]]):
     return src
 
 async def get_chain_results(chain_results: dict[str, Lazy[Source]], refs: list[str]):
-    return [await get_chain_result(chain_results, ref) for ref in refs]
+    return await asyncio.gather(*(get_chain_result(chain_results, ref) for ref in refs))
 
 async def get_chain_result(chain_results: dict[str, Lazy[Source]], ref):
     if '.' in ref:
