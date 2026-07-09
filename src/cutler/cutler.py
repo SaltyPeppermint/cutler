@@ -1,16 +1,17 @@
 import ffmpeg
 import shlex
 import sys
+import os
 from functools import reduce
 
 from cutler.data import Chain, Source, Job, Recipe
 from cutler.lazy import Lazy
 from cutler.filters import ResetTimebase
+from cutler.cmd_exec import exec_cmd
 
 def exec_recipe(recipe: Recipe):
     for job in recipe.jobs:
-        args = render_job(job)
-        print(shlex.join(['ffmpeg'] + args))    # will actually execute later
+        render_job(job)
 
 def render_job(job: Job):
     chain_results = {
@@ -25,7 +26,9 @@ def render_job(job: Job):
 
     out = ffmpeg.output(*out_strms, job.out_filename, **job.out_opts)
     out = ffmpeg.overwrite_output(out)
-    return out.get_args()
+    args = ['ffmpeg'] + out.get_args()
+
+    exec_cmd(f'ffmpeg render {os.path.basename(job.out_filename)}', args)
 
 def get_chain_result(chain_results: dict[str, Lazy[Source]], ref):
     if '.' in ref:

@@ -9,6 +9,7 @@ import ffmpeg
 
 from cutler.data import Source
 from cutler.lazy import Lazy
+from cutler.cmd_exec import exec_cmd
 
 @dataclass
 class ReadClip:
@@ -28,10 +29,10 @@ class ReadClip:
     def filterify(self):
         if self.gen_cmd is not None:
             if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
-                result = subprocess.run(self.gen_cmd, capture_output=True, text=True, check=True)
+                result = exec_cmd(f'generate input {self.filename}', self.gen_cmd)
 
                 if self.filename is None:
-                    self.filename = result.stdout.strip()
+                    self.filename = result.strip()
         elif self.filename is None:
             raise RuntimeError('either filename or gen_cmd must be provided')
 
@@ -69,9 +70,5 @@ class ReadClip:
 
     def _ffprobe(self):
         args = ['ffprobe', '-show_format', '-show_streams', '-of', 'json', self.filename]
-        try:
-            result = subprocess.run(args, capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError as e:
-            sys.stderr.write(e.stderr)
-            raise
-        return json.loads(result.stdout)
+        result = exec_cmd(f'ffprobe {os.path.basename(self.filename)}', args)
+        return json.loads(result)
