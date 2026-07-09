@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 import ffmpeg
 
 from cutler.data import Source
+from cutler.lazy import Lazy
 from cutler.filters.reset_timebase import ResetTimebase
 
 @dataclass
@@ -43,7 +44,9 @@ class ConcatAudioFade:
 
         return Source(
             strm=strm,
-            actual_duration=l.actual_duration + r.actual_duration - duration,
+            actual_duration=Lazy(lambda:
+                l.actual_duration.get() + r.actual_duration.get() - duration,
+            ),
             kind='audio',
         )
 

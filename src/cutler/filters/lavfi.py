@@ -7,6 +7,7 @@ import os
 import ffmpeg
 
 from cutler.data import Source
+from cutler.lazy import Lazy
 
 @dataclass
 class Lavfi:
@@ -30,6 +31,6 @@ class Lavfi:
 
         return Source(
             strm=strm,
-            actual_duration=self.duration,
+            actual_duration=Lazy(lambda: self.duration),
             kind=self.kind,
         )

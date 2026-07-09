@@ -17,6 +17,7 @@ def parse_job(job: dict) -> cl.Job:
         chains=chains,
         outs=job['outs'],
         out_filename=job['out_filename'],
+        out_opts=job.get('out_opts', {}),
     )
 
 def parse_chain(chain: dict) -> cl.Chain:

@@ -1,13 +1,15 @@
 import ffmpeg
 from dataclasses import dataclass, field, replace
-from typing import Protocol, Union, runtime_checkable
+from typing import Protocol, Union, runtime_checkable, Optional
+from cutler.lazy import Lazy
 
 @dataclass
 class Source:   # TODO: naming hard
     strm: ffmpeg.Stream
-    actual_duration: float
+    actual_duration: Optional[Lazy[float]]
     kind: Union['audio', 'video', 'av']
     branches: dict[str, ffmpeg.Stream] = field(default_factory = dict)
+    ffprobe_result: Optional[Lazy[dict()]] = None
 
     def branch(self, name=None):
         if not name:
@@ -29,7 +31,7 @@ class Job:
     chains: dict[str, Chain]
     outs: list[str]    # names of chains whose outputs will be included in output video
     out_filename: str
-    # TODO: add ffmpeg flags
+    out_opts: dict[str, any]
 
 @dataclass
 class Recipe:

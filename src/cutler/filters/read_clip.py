@@ -7,6 +7,7 @@ import os
 import ffmpeg
 
 from cutler.data import Source
+from cutler.lazy import Lazy
 
 @dataclass
 class ReadClip:
@@ -52,17 +53,22 @@ class ReadClip:
         if self.looped:
             raise RuntimeError('not implemented (FIXME: pass loop arg to ffmpeg for this input)')
 
+        probe = Lazy(lambda: self._ffprobe())
         if duration is None:
-            try:
-                # TODO: make this probe be lazy
-                probe = ffmpeg.probe(self.filename)
-            except ffmpeg.Error as e:
-                sys.stderr.write(e.stderr.decode('utf-8'))
-                raise
-            duration = float(probe['format']['duration'])
+            duration_lazy = Lazy(lambda: float(probe.get()['format']['duration']))
+        else:
+            duration_lazy = Lazy(lambda: duration)
 
         return Source(
             strm=strm,
-            actual_duration=duration,
+            actual_duration=duration_lazy,
+            ffprobe_result = probe,
             kind='av',
         )
+
+    def _ffprobe(self):
+        try:
+            return ffmpeg.probe(self.filename)
+        except ffmpeg.Error as e:
+            sys.stderr.write(e.stderr.decode('utf-8'))
+            raise

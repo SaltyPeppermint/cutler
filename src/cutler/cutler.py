@@ -23,7 +23,7 @@ def render_job(job: Job):
 
     out_strms = [chain_results[out].get().strm for out in job.outs]
 
-    out = ffmpeg.output(*out_strms, job.out_filename)
+    out = ffmpeg.output(*out_strms, job.out_filename, **job.out_opts)
     out = ffmpeg.overwrite_output(out)
     return out.get_args()
 

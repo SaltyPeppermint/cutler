@@ -4,6 +4,7 @@ import ffmpeg
 
 from cutler.data import Source
 from cutler.filters.reset_timebase import ResetTimebase
+from cutler.lazy import Lazy
 
 @dataclass
 class Transition:
@@ -49,11 +50,13 @@ class ConcatXFade:
                 'xfade',
                 transition=transition.effect,
                 duration=transition.duration,
-                offset=l.actual_duration - transition.duration,
+                offset=l.actual_duration.get() - transition.duration,
             )
 
         return Source(
             strm=strm,
-            actual_duration=l.actual_duration + r.actual_duration - transition.duration,
+            actual_duration=Lazy(lambda:
+                l.actual_duration.get() + r.actual_duration.get() - transition.duration,
+            ),
             kind='video',
         )
