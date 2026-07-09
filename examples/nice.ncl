@@ -1,23 +1,5 @@
 let
-  mktext = fun dur col txt => {
-    filters = [
-      {
-        ref = "read_clip",
-        filename = "color=c=%{col}:s=1920x1080:r=30",
-        fmt = "lavfi",
-        duration = dur,
-      },
-      { ref = "get_video" },
-      {
-        ref = "drawtext",
-        text = txt,
-        fontcolor = "white",
-        fontsize = 96,
-        x = "(w - text_w)/2",
-        y = "(h - text_h)/2",
-      },
-    ],
-  }
+  mktext = import "lib/mktext.ncl"
 in {
   jobs = [
     {
@@ -103,12 +85,15 @@ in {
         silence = {
           filters = [
             {
-              ref = "read_clip",
-              filename = "anullsrc=channel_layout=stereo:sample_rate=48000",
-              fmt = "lavfi",
+              ref = "lavfi",
+              name = "anullsrc",
+              params = {
+                channel_layout = "stereo",
+                sample_rate = 48000,
+              },
               duration = 1 + 1 + 2 + 1 + 0.2,
+              kind = "audio",
             },
-            { ref = "get_audio" },
           ],
         },
       },

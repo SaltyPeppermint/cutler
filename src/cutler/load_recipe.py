@@ -8,18 +8,26 @@ from cutler import cutler as cl
 from cutler.parse_recipe import parse_recipe
 
 
+def _nickel_str(s: str) -> str:
+    if type(s) is not str:
+        raise RuntimeError('trying to pass non-string as nickel string')
+    return json.dumps(s).replace('%{', r'\%{')
+
+def _nickel_obj(va: dict) -> str:
+    return f"(std.deserialize 'Json {_nickel_str(json.dumps(va))})"
+
 def load_recipe(recipe_path, var_assignments: Optional[Sequence[dict]] = None) -> cl.Recipe:
     recipe_path = os.path.abspath(recipe_path)
     if var_assignments is not None:
         expr = f'''
             let
-                recipe_builder = (import {json.dumps(recipe_path)})
+                recipe_builder = (import {_nickel_str(recipe_path)})
             in
-                {'&'.join([f'(recipe_builder {json.dumps(va)})' for va in var_assignments])}
+                {'&'.join([f'(recipe_builder {_nickel_obj(va)})' for va in var_assignments])}
         '''
     else:
         expr = f'''
-            (import {json.dumps(recipe_path)})
+            (import {_nickel_str(recipe_path)})
         '''
 
     raw = json.loads(nickel.run(expr, import_paths=[os.path.dirname(recipe_path)]))
