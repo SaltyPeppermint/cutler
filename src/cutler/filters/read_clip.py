@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+import json
 import subprocess
 import sys
 import os
@@ -67,8 +68,10 @@ class ReadClip:
         )
 
     def _ffprobe(self):
+        args = ['ffprobe', '-show_format', '-show_streams', '-of', 'json', self.filename]
         try:
-            return ffmpeg.probe(self.filename)
-        except ffmpeg.Error as e:
-            sys.stderr.write(e.stderr.decode('utf-8'))
+            result = subprocess.run(args, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            sys.stderr.write(e.stderr)
             raise
+        return json.loads(result.stdout)
