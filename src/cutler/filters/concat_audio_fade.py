@@ -32,6 +32,7 @@ class ConcatAudioFade:
             strm = ffmpeg.filter(
                 [l.strm, r.strm],
                 'concat',
+                v=0, a=1,
             )
         else:
             strm = ffmpeg.filter(
