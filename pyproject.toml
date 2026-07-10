@@ -3,13 +3,8 @@ name = "cutler"
 version = "0.1.0"
 description = "Cut and concat videos"
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "click",
-    "py-nickel",
-    "ffmpeg-python",
-    "rich",
-]
+requires-python = ">=3.12"
+dependencies = ["click", "py-nickel", "ffmpeg-python", "rich"]
 
 [project.scripts]
 cutler = "cutler.cli:main"

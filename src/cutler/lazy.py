@@ -1,26 +1,19 @@
 import asyncio
 import inspect
 
+
 class Lazy[T]:
     def __init__(self, f):
         self._f = f
-        self._computed = False
-        self._val = None
-        self._lock = asyncio.Lock()
+        self._future: asyncio.Future[T] | None = None
 
-    async def get(self) -> T:
-        if self._computed:
-            return self._val
+    def get(self) -> asyncio.Future[T]:
+        if self._future is None:
+            self._future = asyncio.ensure_future(self._run())
+        return self._future
 
-        async with self._lock:
-            # another get() may have computed the value while we waited for the lock
-            if self._computed:
-                return self._val
-
-            val = self._f()
-            if inspect.isawaitable(val):
-                val = await val
-
-            self._val = val
-            self._computed = True
-            return self._val
+    async def _run(self) -> T:
+        val = self._f()
+        if inspect.isawaitable(val):
+            val = await val
+        return val
