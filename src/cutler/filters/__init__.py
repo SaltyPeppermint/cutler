@@ -2,6 +2,8 @@ import importlib
 import inspect
 import pkgutil
 
+from cutler.filters.raw_ffmpeg_filter import RawFFmpegFilter as RawFFmpegFilter
+
 by_ref = {}
 
 __all__ = []
