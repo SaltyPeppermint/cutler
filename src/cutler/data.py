@@ -21,7 +21,7 @@ class Source:  # TODO: naming hard
 
 @runtime_checkable
 class Filter(Protocol):
-    def filterify(self, ctx, *srcs: Source) -> Source: ...
+    async def filterify(self, ctx, *srcs: Source) -> Source: ...
 
 
 @dataclass
