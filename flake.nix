@@ -24,7 +24,7 @@
 
       pythonFor =
         pkgs:
-        pkgs.python3.override {
+        pkgs.python312.override {
           packageOverrides = pyfinal: pyprev: {
             py-nickel = pyfinal.buildPythonPackage rec {
               pname = "py-nickel";
@@ -93,6 +93,11 @@
               pkgs.yt-dlp
               pkgs.curl
             ];
+            devTools = [
+              pkgs.nil
+              pkgs.nixd
+              pkgs.nixfmt
+            ];
             pythonEnv = python.withPackages (
               ps:
               (project.renderers.withPackages { inherit python; } ps)
@@ -104,7 +109,7 @@
             );
           in
           pkgs.mkShell {
-            packages = [ pythonEnv ] ++ exampleDeps;
+            packages = [ pythonEnv ] ++ exampleDeps ++ devTools;
 
             shellHook = ''
               venv=".venv"
