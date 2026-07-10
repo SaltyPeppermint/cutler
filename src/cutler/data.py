@@ -35,7 +35,7 @@ class Job:
 
 @dataclass
 class Settings:
-    max_parallel_cmds: int = 2
+    max_parallel_cmds: int = 8  # determined by fair dice roll
     # command overrides may be either a string (simple command) or list (command with args)
     command_override: dict[str, any] = field(default_factory=dict)
 

@@ -1,4 +1,5 @@
 import asyncio
+import os
 import shlex
 import sys
 
@@ -17,7 +18,8 @@ async def exec_cmd(ctx, name, args):
 
         if proc.returncode != 0:
             sys.stderr.write(f'failed cmd {name}\ncmd: {shlex.join(args)}\nstderr:\n{stderr}\n')
-            sys.exit(1)
+            sys.stderr.flush()
+            os._exit(1) # FIXME: wait for other tasks to complete
 
         sys.stderr.write(f'finished cmd {name}\n')
         return stdout

@@ -4,9 +4,16 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
   inputs.pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
+  inputs.treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs =
-    { nixpkgs, pyproject-nix, ... }:
+    {
+      nixpkgs,
+      pyproject-nix,
+      treefmt-nix,
+      ...
+    }:
     let
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
@@ -53,6 +60,27 @@
             };
           };
         };
+
+      treefmtFor =
+        pkgs:
+        treefmt-nix.lib.evalModule pkgs {
+          projectRootFile = "flake.nix";
+          programs.nixfmt.enable = true;
+          settings.formatter.nickel = {
+            command = lib.getExe (
+              pkgs.writeShellApplication {
+                name = "nickel-fmt";
+                runtimeInputs = [ pkgs.nickel ];
+                text = ''
+                  for f in "$@"; do
+                    nickel format "$f"
+                  done
+                '';
+              }
+            );
+            includes = [ "*.ncl" ];
+          };
+        };
     in
     {
       devShells = forAllSystems (system: {
@@ -66,7 +94,9 @@
               pkgs.curl
             ];
             pythonEnv = python.withPackages (
-              ps: (project.renderers.withPackages { inherit python; } ps) ++ [
+              ps:
+              (project.renderers.withPackages { inherit python; } ps)
+              ++ [
                 ps.pip
                 ps.hatchling
                 ps.editables
@@ -98,6 +128,8 @@
         }
       );
 
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+      formatter = forAllSystems (
+        system: (treefmtFor nixpkgs.legacyPackages.${system}).config.build.wrapper
+      );
     };
 }
