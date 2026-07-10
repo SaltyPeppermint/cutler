@@ -8,6 +8,7 @@ dependencies = [
     "click",
     "py-nickel",
     "ffmpeg-python",
+    "rich",
 ]
 
 [project.scripts]

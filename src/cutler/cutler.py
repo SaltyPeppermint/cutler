@@ -6,14 +6,15 @@ import os
 from functools import reduce
 
 from cutler.data import Chain, Source, Job, Recipe
-from cutler.ctx import Ctx
+from cutler import context
+from cutler.context import Ctx
 from cutler.lazy import Lazy
 from cutler.filters import ResetTimebase
 from cutler.cmd_exec import exec_cmd
 
 async def exec_recipe(recipe: Recipe):
-    ctx = Ctx(recipe.settings)
-    await asyncio.gather(*(render_job(ctx, job) for job in recipe.jobs))
+    with context.new(recipe.settings) as ctx:
+        await asyncio.gather(*(render_job(ctx, job) for job in recipe.jobs))
 
 async def render_job(ctx: Ctx, job: Job):
     chain_results = {

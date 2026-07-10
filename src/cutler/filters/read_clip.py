@@ -29,7 +29,7 @@ class ReadClip:
     async def filterify(self, ctx):
         if self.gen_cmd is not None:
             if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
-                result = await exec_cmd(ctx, f'generate input {self.filename}', self.gen_cmd)
+                result = await exec_cmd(ctx, f'generate input {os.path.basename(self.filename)}', self.gen_cmd)
 
                 if self.filename is None:
                     self.filename = result.strip()
