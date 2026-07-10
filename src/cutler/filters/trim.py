@@ -15,7 +15,7 @@ class Trim:
     def ref():
         return 'trim'
 
-    async def filterify(self, source):
+    async def filterify(self, ctx, source):
         args = {
             'start': self.start,
             'end': self.end,

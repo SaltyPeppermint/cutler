@@ -12,7 +12,7 @@ class Scale:
     def ref():
         return 'scale'
 
-    async def filterify(self, source):
+    async def filterify(self, ctx, source):
         w = self.w
         h = self.h
         if w is None and h is None:

@@ -26,10 +26,10 @@ class ReadClip:
     def ref():
         return 'read_clip'
 
-    async def filterify(self):
+    async def filterify(self, ctx):
         if self.gen_cmd is not None:
             if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
-                result = await exec_cmd(f'generate input {self.filename}', self.gen_cmd)
+                result = await exec_cmd(ctx, f'generate input {self.filename}', self.gen_cmd)
 
                 if self.filename is None:
                     self.filename = result.strip()
@@ -55,7 +55,7 @@ class ReadClip:
         if self.looped:
             raise RuntimeError('not implemented (FIXME: pass loop arg to ffmpeg for this input)')
 
-        probe = Lazy(lambda: self._ffprobe())
+        probe = Lazy(lambda: self._ffprobe(ctx))
         if duration is None:
             async def probe_duration():
                 return float((await probe.get())['format']['duration'])
@@ -70,7 +70,7 @@ class ReadClip:
             kind='av',
         )
 
-    async def _ffprobe(self):
+    async def _ffprobe(self, ctx):
         args = ['ffprobe', '-show_format', '-show_streams', '-of', 'json', self.filename]
-        result = await exec_cmd(f'ffprobe {os.path.basename(self.filename)}', args)
+        result = await exec_cmd(ctx, f'ffprobe {os.path.basename(self.filename)}', args)
         return json.loads(result)

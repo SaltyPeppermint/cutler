@@ -2,10 +2,12 @@ import json
 
 from cutler import cutler as cl
 from cutler import filters
+from cutler.data import Settings
 
 def parse_recipe(data: dict) -> cl.Recipe:
     jobs = [parse_job(jobdata) for jobdata in data['jobs']]
-    return cl.Recipe(jobs=jobs)
+    settings = Settings(**data.get('settings', {}))
+    return cl.Recipe(jobs=jobs, settings=settings)
 
 def parse_job(job: dict) -> cl.Job:
     chains = {

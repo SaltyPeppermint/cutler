@@ -25,9 +25,9 @@ class ConcatXFade:
             transitions=[Transition(**t) for t in d['transitions']],
         )
 
-    async def filterify(self, *srcs):
+    async def filterify(self, ctx, *srcs):
         # xfade requires all clips to start from 0 timebase
-        srcs = [await ResetTimebase().filterify(src) for src in srcs]
+        srcs = [await ResetTimebase().filterify(ctx, src) for src in srcs]
 
         if len(self.transitions) + 1 != len(srcs):
             raise RuntimeErrror(f'concat_xfade given {len(srcs)} sources but expects {len(self.transitions) + 1} sources (because there are {len(self.transitions)} transitions defined')

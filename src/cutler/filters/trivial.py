@@ -9,7 +9,7 @@ class GetAudio:
     def ref():
         return 'get_audio'
 
-    async def filterify(self, source):
+    async def filterify(self, ctx, source):
         return replace(source, strm=source.strm.audio, kind='audio')
 
 @dataclass
@@ -18,5 +18,5 @@ class GetVideo:
     def ref():
         return 'get_video'
 
-    async def filterify(self, source):
+    async def filterify(self, ctx, source):
         return replace(source, strm=source.strm.video, kind='video')

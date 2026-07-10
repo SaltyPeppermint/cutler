@@ -19,7 +19,7 @@ class Source:   # TODO: naming hard
 
 @runtime_checkable
 class Filter(Protocol):
-    def filterify(self, *srcs: Source) -> Source: ...
+    def filterify(self, ctx, *srcs: Source) -> Source: ...
 
 @dataclass
 class Chain:
@@ -34,5 +34,10 @@ class Job:
     out_opts: dict[str, any]
 
 @dataclass
+class Settings:
+    max_parallel_cmds: int = 2
+
+@dataclass
 class Recipe:
     jobs: list[Job]
+    settings: Settings

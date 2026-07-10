@@ -19,7 +19,7 @@ class Lavfi:
     def ref():
         return 'lavfi'
 
-    async def filterify(self):
+    async def filterify(self, ctx):
         kwargs = {}
         if self.duration is not None:
             kwargs['t'] = self.duration

@@ -6,18 +6,20 @@ import os
 from functools import reduce
 
 from cutler.data import Chain, Source, Job, Recipe
+from cutler.ctx import Ctx
 from cutler.lazy import Lazy
 from cutler.filters import ResetTimebase
 from cutler.cmd_exec import exec_cmd
 
 async def exec_recipe(recipe: Recipe):
-    await asyncio.gather(*(render_job(job) for job in recipe.jobs))
+    ctx = Ctx(recipe.settings)
+    await asyncio.gather(*(render_job(ctx, job) for job in recipe.jobs))
 
-async def render_job(job: Job):
+async def render_job(ctx: Ctx, job: Job):
     chain_results = {
         chain_name: Lazy(
             lambda chain=chain:
-                exec_chain(chain, chain_results)
+                exec_chain(ctx, chain, chain_results)
         )
         for chain_name, chain in job.chains.items()
     }
@@ -29,14 +31,14 @@ async def render_job(job: Job):
     out = ffmpeg.overwrite_output(out)
     args = ['ffmpeg'] + out.get_args()
 
-    await exec_cmd(f'ffmpeg render {os.path.basename(job.out_filename)}', args)
+    await exec_cmd(ctx, f'ffmpeg render {os.path.basename(job.out_filename)}', args)
 
-async def exec_chain(chain: Chain, chain_results: dict[str, Lazy[Source]]):
+async def exec_chain(ctx: Ctx, chain: Chain, chain_results: dict[str, Lazy[Source]]):
     input_srcs = await get_chain_results(chain_results, chain.inputs)
 
-    src = await chain.filters[0].filterify(*input_srcs)
+    src = await chain.filters[0].filterify(ctx, *input_srcs)
     for fltr in chain.filters[1:]:
-        src = await fltr.filterify(src)
+        src = await fltr.filterify(ctx, src)
 
     return src
 

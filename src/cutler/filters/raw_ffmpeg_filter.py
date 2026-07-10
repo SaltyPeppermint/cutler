@@ -12,7 +12,7 @@ class RawFFmpegFilter:
     def ref():
         return 'raw_ffmpeg_filter'
 
-    async def filterify(self, *srcs):
+    async def filterify(self, ctx, *srcs):
         strms = [src.strm for src in srcs]
         strm = ffmpeg.filter(strms, self.name, *self.args, **self.kwargs)
         return replace(srcs[0], strm=strm)

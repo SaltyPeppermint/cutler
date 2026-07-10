@@ -8,7 +8,7 @@ class ResetTimebase:
     def ref():
         return 'reset_timebase'
 
-    async def filterify(self, source):
+    async def filterify(self, ctx, source):
         strm = source.strm
 
         if source.kind == 'video':
