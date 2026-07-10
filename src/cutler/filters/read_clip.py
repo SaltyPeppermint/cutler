@@ -12,8 +12,8 @@ from cutler.cmd_exec import exec_cmd
 
 @dataclass
 class ReadClip:
-    filename: str | None = None
-    gen_cmd: list[str] | None = None
+    filename: str
+    gen_cmd: list[str]
     gen_overwrite: bool = True
     looped: bool = False
     fmt: Optional[str] = None
@@ -29,7 +29,9 @@ class ReadClip:
         if self.gen_cmd is not None:
             if self.filename is None or not os.path.exists(self.filename) or self.gen_overwrite:
                 result = await exec_cmd(
-                    ctx, f"generate input {os.path.basename(self.filename)}", self.gen_cmd
+                    ctx,
+                    f"generate input {os.path.basename(self.filename)}",
+                    self.gen_cmd,
                 )
 
                 if self.filename is None:

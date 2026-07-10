@@ -15,7 +15,7 @@ for _info in pkgutil.iter_modules(__path__):
             globals()[_name] = _obj
             __all__.append(_name)
             try:
-                by_ref[_obj.ref()] = _obj
+                by_ref[_obj.ref()] = _obj  # ty:ignore[unresolved-attribute]
             except AttributeError:
                 pass
 
