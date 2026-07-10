@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 
+
 class Lazy[T]:
     def __init__(self, f):
         self._f = f

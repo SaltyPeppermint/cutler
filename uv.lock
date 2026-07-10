@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 
 [[package]]
 name = "click"
@@ -90,13 +90,6 @@ version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/50/52/66cc9724668d3a3cce89673833b9cba40c13ead3d07cc8e93e889a678fe7/py_nickel-1.17.0.tar.gz", hash = "sha256:a239c77bb640c9504d3a9099ed7839c4bdfd3a424e0d1fd3a4ed066830496ca3", size = 760175, upload-time = "2026-06-09T21:29:13.696Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/74/52/0158898a2c5ca0947578b1f841005404fe0dfe03905cbd7b93786d962c91/py_nickel-1.17.0-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:798e363fcfbdffc599603925c4ea6eaa8b5ee6322cb3cfc8153911f6b54172df", size = 4393294, upload-time = "2026-06-09T21:28:38.444Z" },
-    { url = "https://files.pythonhosted.org/packages/d3/ee/76b4dc499f65264f0b95155c710969a91099df9d0fa45ca35277873b2db0/py_nickel-1.17.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:5bb5b73f39467b7b2d74f94bb89f8222738a13b4eeff50560324d863b7848b40", size = 4089773, upload-time = "2026-06-09T21:28:40.216Z" },
-    { url = "https://files.pythonhosted.org/packages/df/00/fde6e24884b4049bbc550043b090f669d6135f55cd6356427a2c3e8df857/py_nickel-1.17.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2d35425b04d92395457f2cecc723f27fa1d4d3081a1cf5a18cd286d046cde3e0", size = 4211949, upload-time = "2026-06-09T21:28:41.929Z" },
-    { url = "https://files.pythonhosted.org/packages/cb/d9/4d06e9003b45b30a76cf77250e4c64096481520665961101bd84dcdaa24e/py_nickel-1.17.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d9c243a8551bc539771ae3993852452b9e24fd1933b3f728603bb95e889a4a1a", size = 4458631, upload-time = "2026-06-09T21:28:43.598Z" },
-    { url = "https://files.pythonhosted.org/packages/24/f6/e3b0bac2ed87b565647691467844fb7f8320bd000e43fd08c56749ed0772/py_nickel-1.17.0-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:a61f88f6825c176907f7ec73af10c92e4cf1829496584ad99ea206711d72b311", size = 4389979, upload-time = "2026-06-09T21:28:45.13Z" },
-    { url = "https://files.pythonhosted.org/packages/d8/e9/835aeccf139f08340e6a1cbafaff44c48683a5c5f06e3ee3015b1e197c81/py_nickel-1.17.0-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:1060fd4538b582cb5a3b8dd6997db5510b510bdfad3c3f5e12d1549f4e27442a", size = 4666383, upload-time = "2026-06-09T21:28:46.815Z" },
-    { url = "https://files.pythonhosted.org/packages/d5/13/9bd82c84a652c8e66ed75b3f41fe11d6df16da4c6e19ac502ef82914d59c/py_nickel-1.17.0-cp311-cp311-win_amd64.whl", hash = "sha256:5a7a24f8a4586c37697172861c6fe0afac927d4d3df0ea4ef99d1fc11ebe249f", size = 4770369, upload-time = "2026-06-09T21:28:48.576Z" },
     { url = "https://files.pythonhosted.org/packages/92/28/4e7a98ed1a3c520ddaa9789cf19e1aeacaee6d4b17acb1d7d54f699597c2/py_nickel-1.17.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:8fe8b7a38016de9f1e8d98b50960acd295a8b9c80c857227d698ff55cc3dc8af", size = 4393144, upload-time = "2026-06-09T21:28:50.107Z" },
     { url = "https://files.pythonhosted.org/packages/d7/f6/52c5ecfd1592686608db3935ef8d2efb4dd1ac82e3054aea267c394a8134/py_nickel-1.17.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:f474051e9ff3a2d34151a1cce34ea24334c1539812c9be031620048f2fe337eb", size = 4089770, upload-time = "2026-06-09T21:28:51.632Z" },
     { url = "https://files.pythonhosted.org/packages/5b/8d/a77efd2f3f9e4f2c90153c0ad55ecee9393dbbe4305f5b872dcbffc9c7e4/py_nickel-1.17.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:34b65e65ce0b06763fb61c9119104ab7e1c6a07cc0683d9f5f6467f9539386d8", size = 4210060, upload-time = "2026-06-09T21:28:53.535Z" },

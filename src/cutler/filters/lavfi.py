@@ -1,32 +1,31 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
-import sys
-import os
+from typing import Any, Literal, Optional
 
 import ffmpeg
 
 from cutler.data import Source
 from cutler.lazy import Lazy
 
+
 @dataclass
 class Lavfi:
     name: str
-    params: dict[str, any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     duration: Optional[float] = None
-    kind: Union['audio', 'video', 'av'] = 'av'
+    kind: Literal["audio", "video", "av"] = "av"
 
     @staticmethod
     def ref():
-        return 'lavfi'
+        return "lavfi"
 
     async def filterify(self, ctx):
         kwargs = {}
         if self.duration is not None:
-            kwargs['t'] = self.duration
+            kwargs["t"] = self.duration
 
-        inp = self.name + '=' + ':'.join([f'{k}={v}' for k, v in self.params.items()])
+        inp = self.name + "=" + ":".join([f"{k}={v}" for k, v in self.params.items()])
 
-        strm = ffmpeg.input(inp, f='lavfi', **kwargs)
+        strm = ffmpeg.input(inp, f="lavfi", **kwargs)
 
         return Source(
             strm=strm,

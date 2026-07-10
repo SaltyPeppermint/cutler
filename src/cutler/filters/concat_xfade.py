@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 import ffmpeg
 
@@ -6,10 +6,12 @@ from cutler.data import Source
 from cutler.filters.reset_timebase import ResetTimebase
 from cutler.lazy import Lazy
 
+
 @dataclass
 class Transition:
-    effect: str = 'fade'
+    effect: str = "fade"
     duration: float = 0
+
 
 @dataclass
 class ConcatXFade:
@@ -17,12 +19,12 @@ class ConcatXFade:
 
     @staticmethod
     def ref():
-        return 'concat_xfade'
+        return "concat_xfade"
 
     @classmethod
     def from_dict(cls, d):
         return cls(
-            transitions=[Transition(**t) for t in d['transitions']],
+            transitions=[Transition(**t) for t in d["transitions"]],
         )
 
     async def filterify(self, ctx, *srcs):
@@ -30,34 +32,40 @@ class ConcatXFade:
         srcs = [await ResetTimebase().filterify(ctx, src) for src in srcs]
 
         if len(self.transitions) + 1 != len(srcs):
-            raise RuntimeErrror(f'concat_xfade given {len(srcs)} sources but expects {len(self.transitions) + 1} sources (because there are {len(self.transitions)} transitions defined')
+            raise RuntimeError(
+                f"concat_xfade given {len(srcs)} sources but expects {len(self.transitions) + 1} sources (because there are {len(self.transitions)} transitions defined"
+            )
 
-        l = srcs[0]
-        for transition, r in zip(self.transitions, srcs[1:]):
-            l = await self._concat(l, r, transition)
+        left = srcs[0]
+        for transition, right in zip(self.transitions, srcs[1:]):
+            left = await self._concat(left, right, transition)
 
-        return l
+        return left
 
-    async def _concat(self, l, r, transition):
+    async def _concat(self, left, right, transition):
         if transition.duration < 0.00001:
             strm = ffmpeg.filter(
-                [l.strm, r.strm],
-                'concat',
+                [left.strm, right.strm],
+                "concat",
             )
         else:
             strm = ffmpeg.filter(
-                [l.strm, r.strm],
-                'xfade',
+                [left.strm, right.strm],
+                "xfade",
                 transition=transition.effect,
                 duration=transition.duration,
-                offset=await l.actual_duration.get() - transition.duration,
+                offset=await left.actual_duration.get() - transition.duration,
             )
 
         async def total_duration():
-            return await l.actual_duration.get() + await r.actual_duration.get() - transition.duration
+            return (
+                await left.actual_duration.get()
+                + await right.actual_duration.get()
+                - transition.duration
+            )
 
         return Source(
             strm=strm,
             actual_duration=Lazy(total_duration),
-            kind='video',
+            kind="video",
         )

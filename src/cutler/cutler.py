@@ -1,27 +1,22 @@
 import asyncio
 import ffmpeg
-import shlex
-import sys
 import os
-from functools import reduce
 
 from cutler.data import Chain, Source, Job, Recipe
 from cutler import context
 from cutler.context import Ctx
 from cutler.lazy import Lazy
-from cutler.filters import ResetTimebase
 from cutler.cmd_exec import exec_cmd
+
 
 async def exec_recipe(recipe: Recipe):
     with context.new(recipe.settings) as ctx:
         await asyncio.gather(*(render_job(ctx, job) for job in recipe.jobs))
 
+
 async def render_job(ctx: Ctx, job: Job):
     chain_results = {
-        chain_name: Lazy(
-            lambda chain=chain:
-                exec_chain(ctx, chain, chain_results)
-        )
+        chain_name: Lazy(lambda chain=chain: exec_chain(ctx, chain, chain_results))
         for chain_name, chain in job.chains.items()
     }
 
@@ -30,9 +25,10 @@ async def render_job(ctx: Ctx, job: Job):
 
     out = ffmpeg.output(*out_strms, job.out_filename, **job.out_opts)
     out = ffmpeg.overwrite_output(out)
-    args = ['ffmpeg'] + out.get_args()
+    args = ["ffmpeg"] + out.get_args()
 
-    await exec_cmd(ctx, f'ffmpeg render {os.path.basename(job.out_filename)}', args)
+    await exec_cmd(ctx, f"ffmpeg render {os.path.basename(job.out_filename)}", args)
+
 
 async def exec_chain(ctx: Ctx, chain: Chain, chain_results: dict[str, Lazy[Source]]):
     input_srcs = await get_chain_results(chain_results, chain.inputs)
@@ -43,13 +39,15 @@ async def exec_chain(ctx: Ctx, chain: Chain, chain_results: dict[str, Lazy[Sourc
 
     return src
 
+
 async def get_chain_results(chain_results: dict[str, Lazy[Source]], refs: list[str]):
     return await asyncio.gather(*(get_chain_result(chain_results, ref) for ref in refs))
 
+
 async def get_chain_result(chain_results: dict[str, Lazy[Source]], ref):
-    if '.' in ref:
-        name, branch = ref.split('.', 2)
+    if "." in ref:
+        name, branch = ref.split(".", 2)
     else:
-        name, branch = ref, ''
+        name, branch = ref, ""
 
     return (await chain_results[name].get()).branch(branch)

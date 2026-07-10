@@ -1,16 +1,18 @@
 from dataclasses import dataclass, replace, field
+from typing import Any
 
 import ffmpeg
+
 
 @dataclass
 class RawFFmpegFilter:
     name: str
-    args: list[any] = field(default_factory = list)
-    kwargs: dict[str, any] = field(default_factory = dict)
+    args: list[Any] = field(default_factory=list)
+    kwargs: dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
     def ref():
-        return 'raw_ffmpeg_filter'
+        return "raw_ffmpeg_filter"
 
     async def filterify(self, ctx, *srcs):
         strms = [src.strm for src in srcs]
