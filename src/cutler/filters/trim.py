@@ -23,7 +23,7 @@ class Trim:
             "start": self.start,
             "end": self.end,
         }
-        if self.end is None and self.duration is not None:
+        if self.end is not None and self.duration is not None:
             args["end"] = self.end + self.duration
 
         if self.kind == "ts":
