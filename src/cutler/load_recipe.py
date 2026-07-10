@@ -28,5 +28,5 @@ def load_recipe(recipe_path, data) -> cl.Recipe:
             (import {_nickel_str(recipe_path)})
         """
 
-    raw = json.loads(nickel.run(expr, import_paths=[os.path.dirname(recipe_path)]))
+    raw = json.loads(nickel.run(expr, import_paths=[os.path.dirname(recipe_path)]))  # ty: ignore[unresolved-attribute]
     return parse_recipe(raw)
