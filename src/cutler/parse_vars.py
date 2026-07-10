@@ -3,7 +3,7 @@ import json
 
 import click
 
-def _coerce(value: str):
+def coerce(value: str):
     # valid jsons are parsed as json; everything else is a string lmao
     try:
         return json.loads(value)
@@ -11,7 +11,7 @@ def _coerce(value: str):
         return value
 
 def records_from_csv(f) -> list[dict[str, any]]:
-    return [{k: _coerce(v) for k, v in row.items()} for row in csv.DictReader(f)]
+    return [{k: coerce(v) for k, v in row.items()} for row in csv.DictReader(f)]
 
 def records_from_jsonl(f) -> list[dict[str, any]]:
     records = []
@@ -28,5 +28,5 @@ def vars_from_click_arg(vars_) -> dict[str, any]:
         name, sep, raw = entry.partition('=')
         if not sep:
             raise click.BadParameter(f'expected NAME=JSON, got {entry!r}', param_hint='--var')
-        var_assignments[name] = _coerce(raw)
+        var_assignments[name] = coerce(raw)
     return var_assignments
